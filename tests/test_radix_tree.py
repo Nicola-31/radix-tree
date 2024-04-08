@@ -375,6 +375,7 @@ def test_radix_tree_04():
     assert my_tree.get_node(my_key) == None
     my_tree.dump()
 
+
 if __name__ == "__main__":
     test_radix_tree_00()
     test_radix_tree_01()

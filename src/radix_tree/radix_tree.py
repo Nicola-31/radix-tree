@@ -1,88 +1,35 @@
 # -*- coding: utf-8 -*-
 
-import logging
-import logging.handlers
-import sys
-
-# Log configuration --------------------------------------
-LOG_FILENAME = '/tmp/radixTree.out'
-
-LEVELS = {'debug': logging.DEBUG,
-          'info': logging.INFO,
-          'warning': logging.WARNING,
-          'error': logging.ERROR,
-          'critical': logging.CRITICAL}
-
-
-def get_params(param_name):
-    """
-    Detection of an argument on the command line like <param_name>=<value>
-    Return <value> if any or ''
-    Example :
-      level=debug
-      01234567890
-           ^
-      p_name=5
-    """
-    p_name = len(param_name)
-    ret = ''
-    if len(sys.argv)>1:
-        for ar in range(len(sys.argv)):
-            arg = sys.argv[ar]
-            # print("arg : %s" % arg)
-            a = len(arg)
-            if a > p_name:
-                # print("arg[p_name] : %s" %arg[p_name])
-                # print("arg[0:p_name-1] : %s" %arg[0:p_name])
-                if arg[p_name] == '=' and arg[0:p_name] == param_name:
-                    ret = arg[p_name+1:]
-    # print("Return value : %s" %ret)
-    return ret
-
-level = logging.NOTSET  # Par défaut, pas de log
-
-level_name = get_params('level')
-if level_name:
-    level = LEVELS.get(level_name, logging.NOTSET)
-
-my_logger = logging.getLogger(__name__)
-my_logger.setLevel(level)
-
-# Add the handler
-handler = logging.handlers.RotatingFileHandler(LOG_FILENAME, maxBytes=1048576, backupCount=5)
-# Formatter creation
-formatter = logging.Formatter("%(asctime)s %(name)s %(levelname)s %(message)s")
-# Add formatter to handler
-handler.setFormatter(formatter)
-my_logger.addHandler(handler)
-
-handler = logging.StreamHandler()
-# Formatter creation
-formatter = logging.Formatter("%(asctime)s %(name)s %(levelname)s %(filename)s %(lineno)d %(message)s")
-# Add formatter to handler
-handler.setFormatter(formatter)
-my_logger.addHandler(handler)
-
-# End log configuration --------------------------------------
+###################################################################
+# run tests from Pycharms locally                                ##
+#from radix_config import my_logger                              ##
+#                                                                ##
+# run tests from external Testpy as distributed package          ##
+from radix_tree.radix_config import my_logger
+#                                                                ##
+###################################################################
 
 class Container(object):
     """
     Container populated with data linked to a radic node
     """
-    def __init__(self, data, tag = None):
+
+    def __init__(self, data, tag=None):
         self._data = data
         self._tag = tag
         self._previous = None
         self._next = None
 
     def __str__(self):
-        return("Container -> data: %s tag: %s" %(self._data, self._tag))
+        return ("Container -> data: %s tag: %s" % (self._data, self._tag))
+
+
 class Node(object):
     """
      A radix node
      """
 
-    def __init__(self, key, key_size, cont = None):
+    def __init__(self, key, key_size, cont=None):
         self._next = {}
         self._key = key
         self._key_size = key_size
@@ -91,20 +38,23 @@ class Node(object):
     def __str__(self):
         p = hex(id(self))
         if self._data:
-            return("Node %s -> key: %s (%s) key_size: %d _next: %s _data %s" %(p, self._key[0:self._key_size],self._key[self._key_size+1:], self._key_size, self._next, self._data))
+            return ("Node %s -> key: %s (%s) key_size: %d _next: %s _data %s" % (
+            p, self._key[0:self._key_size], self._key[self._key_size + 1:], self._key_size, self._next, self._data))
         else:
-            return ("Node %s -> key: %s (%s) key_size: %d _next: %s" % (p, self._key[0:self._key_size], self._key[self._key_size + 1:], self._key_size, self._next))
+            return ("Node %s -> key: %s (%s) key_size: %d _next: %s" % (
+            p, self._key[0:self._key_size], self._key[self._key_size + 1:], self._key_size, self._next))
 
 class RadixTree(object):
     """
     A radix tree
     """
-#    max_key_len = 0
+
+    #    max_key_len = 0
 
     def __init__(self):
         self._tree = None
 
-    def insert_node(self, key, val, start_node = None):
+    def insert_node(self, key, val, start_node=None):
         """
         Insert a node in radix tree with a string key
         :param key: string or int key
@@ -125,10 +75,10 @@ class RadixTree(object):
 
         my_logger.info("Current node: %s " % current)
 
-        if  not current:
+        if not current:
             """ the radix tree is empty """
             my_logger.debug("Radix tree empty")
-            cont = Container(data=val,tag=0)
+            cont = Container(data=val, tag=0)
             node = Node(key, len(key), cont)
             self._tree = node
             my_logger.debug(node)
@@ -136,7 +86,7 @@ class RadixTree(object):
 
         tested = 0
         while tested < current._key_size:
-            if tested > len(key)-1:
+            if tested > len(key) - 1:
                 #  Example
                 #  key to insert AB
                 #  tested = 2
@@ -190,14 +140,14 @@ class RadixTree(object):
                 #                  ┃ key=AC     ┃
                 #                  ┃ len=2      ┃
                 #                  ┗━━━━━━━━━━━━┛
-                cont = Container(data=val,tag=0)
+                cont = Container(data=val, tag=0)
                 node1 = Node(current._key, current._key_size, None)
                 node1._next = current._next.copy()
                 node1._data = current._data
                 node2 = Node(key, len(key), cont)
 
                 current._key_size = tested
-                #for k in current._next:
+                # for k in current._next:
                 #    del current._next[k]
                 current._next = {}
                 current._next[current._key[tested]] = node1
@@ -260,12 +210,11 @@ class RadixTree(object):
                 else:
                     """Create container"""
                     my_logger.debug("Node already exist. Create container: %s" % current)
-                    cont = Container(data=val,tag=0)
+                    cont = Container(data=val, tag=0)
                     current._data = cont
                 return cont
 
-
-    def get_node(self, key, start_node = None):
+    def get_node(self, key, start_node=None):
         """
         Get node in the radix tree beginning to <start_node> indexed by <key>
         :param start_node: first node of the radix tree to explore
@@ -289,7 +238,7 @@ class RadixTree(object):
         if node:
             my_logger.info("Current node: %s" % node)
             if node._key == key and node._key_size == len(node._key):
-                my_logger.info("Node found -> key: %s key_size: %d data: %s" %(node._key, node._key_size, node._data))
+                my_logger.info("Node found -> key: %s key_size: %d data: %s" % (node._key, node._key_size, node._data))
                 return node._data
             else:
                 tested = 0
@@ -299,7 +248,8 @@ class RadixTree(object):
                         return None
                     else:
                         my_logger.debug("Searching node... current node: %s " % node)
-                        my_logger.debug("Searching node... index: %d tested: %s - %s" %(tested, node._key[tested], key[tested]))
+                        my_logger.debug(
+                            "Searching node... index: %d tested: %s - %s" % (tested, node._key[tested], key[tested]))
                         if node._key[tested] != key[tested]:
                             my_logger.warning("Node not found -> key: %s" % key)
                             return None
@@ -318,8 +268,7 @@ class RadixTree(object):
             my_logger.info("Radix tree empty")
             return None
 
-
-    def delete_node(self, key, start_node = None, prev_node = None):
+    def delete_node(self, key, start_node=None, prev_node=None):
         """
         Delete node in radix tree
         :param key: key of the node to delete
@@ -334,7 +283,7 @@ class RadixTree(object):
             key = bin(key).replace('0b', '')
             my_logger.debug("Key converted in string key: %s " % key)
 
-        my_logger.debug(" Key : %s" % key )
+        my_logger.debug(" Key : %s" % key)
 
         if start_node == None:
             node = self._tree
@@ -489,7 +438,7 @@ class RadixTree(object):
             my_logger.info("Radix tree empty")
             return False
 
-    def dump(self, node = None, st_next_line = ''):
+    def dump(self, node=None, st_next_line=''):
         """
         Display a radix node
         :param node: first node of the radix tree. If node = None dump the entire radix tree
@@ -509,7 +458,7 @@ class RadixTree(object):
                 line = "■"
             else:
                 line = "□"
-            line += " key: %s key_len: %d next: %d" %(node._key, node._key_size, len(node._next))
+            line += " key: %s key_len: %d next: %d" % (node._key, node._key_size, len(node._next))
             if node._data:
                 line += " data: %s" % node._data
             print(line)
@@ -526,7 +475,7 @@ class RadixTree(object):
                 line += "└■"
             else:
                 line += "└□"
-            line += " key: %s key_len: %d next: %d" %(node._key, node._key_size, len(node._next))
+            line += " key: %s key_len: %d next: %d" % (node._key, node._key_size, len(node._next))
             if node._data:
                 line += " data: %s" % node._data
             print(line)
@@ -539,7 +488,5 @@ class RadixTree(object):
 
             for item in node._next:
                 self.dump(node._next[item], st_next_line)
-                l = len(st_next_line)-1
+                l = len(st_next_line) - 1
                 st_next_line = st_next_line[0:l]
-
-

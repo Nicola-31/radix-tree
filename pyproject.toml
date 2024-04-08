@@ -30,9 +30,9 @@ classifiers = [
 dependencies = []
 
 [project.urls]
-Documentation = "https://github.com/unknown/radix-tree#readme"
-Issues = "https://github.com/unknown/radix-tree/issues"
-Source = "https://github.com/unknown/radix-tree"
+Documentation = "https://github.com/Nicola-31/radix-tree#readme"
+Issues = "https://github.com/Nicola-31/radix-tree/issues"
+Source = "https://github.com/Nicola-31/radix-tree"
 
 [tool.hatch.build.targets.sdist]
 exclude = [
